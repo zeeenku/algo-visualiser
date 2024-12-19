@@ -53,16 +53,22 @@ export default function Home() {
     };
 
     // Main recursive function for bubble sort
-    const recursiveSort = (i) => {
+    const recursiveSort = (i,ne) => {
       if (i <= maxIterationIndex) {
         const isSorted = bubbleSortStep(i);
         if (!isSorted) {
-          animationId = requestAnimationFrame(() => recursiveSort(i + 1));
+          if(ne%n === 1){
+            animationId = requestAnimationFrame(() => recursiveSort(i + 1, ne++));
+          }
+          else
+          {
+            recursiveSort(i + 1, ne++);
+          }
         } else {
           // If a pass is finished, decrease the range of sorting
           maxIterationIndex--;
           if (maxIterationIndex >= 1) {
-            animationId = requestAnimationFrame(() => recursiveSort(0));
+            animationId = requestAnimationFrame(() => recursiveSort(0,1));
           }
         }
       } else {
@@ -78,7 +84,7 @@ export default function Home() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    canvas.width = 1200;
+    canvas.width = 700;
     canvas.height = 500;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
