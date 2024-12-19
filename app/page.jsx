@@ -23,63 +23,58 @@ export default function Home() {
     let numbers = [...statee]; // Create a copy of the state to avoid mutation directly
     let comparisonCounts = 0;
     let arrayAccessCount = 0;
-    let maxIterationIndex = numbers.length - 1;
     let animationId = null;
+    let i = 1; // The index of the element we're inserting
+    let j = 0; // The index used to compare the current element to the sorted portion
 
-    // Helper function to perform a single pass of bubble sort
-    const bubbleSortStep = (i) => {
-      if (i >= maxIterationIndex) {
-        // Once a single pass is complete, start the next recursive pass
+    // Helper function to perform a single step of insertion sort
+    const insertionSortStep = () => {
+      if (i >= numbers.length) {
+        // Sorting is complete
         return true;
       }
 
-      let first_num = numbers[i],
-          second_num = numbers[i + 1];
-      arrayAccessCount += 2;
+      let currentElement = numbers[i];
+      j = i - 1;
+      arrayAccessCount += 1; // Access the current element
 
-      if (first_num > second_num) {
-        // Swap the elements
-        numbers[i] = second_num;
-        numbers[i + 1] = first_num;
-        setStatee([...numbers]);  // Always use a copy to avoid direct mutation
-        arrayAccessCount += 2;
+      // Find the correct position for the current element
+      while (j >= 0 && numbers[j] > currentElement) {
+        numbers[j + 1] = numbers[j];
+        j--;
+        arrayAccessCount += 1; // Access the element at numbers[j]
+        setStatee([...numbers]); // Always use a copy to avoid direct mutation
       }
 
-      comparisonCounts += 1;
+      // Place the current element into its correct position
+      numbers[j + 1] = currentElement;
+      setStatee([...numbers]); // Update the state
+      arrayAccessCount += 1; // Access the current element position
+
+      comparisonCounts += (i - 1); // Count comparisons for each iteration
       setComparaisonCounts(comparisonCounts);
       setArrayAccessCount(arrayAccessCount);
 
       return false; // Continue the animation
     };
 
-    // Main recursive function for bubble sort
-    const recursiveSort = (i,ne) => {
-      if (i <= maxIterationIndex) {
-        const isSorted = bubbleSortStep(i);
-        if (!isSorted) {
-          if(ne%n === 1){
-            animationId = requestAnimationFrame(() => recursiveSort(i + 1, ne++));
-          }
-          else
-          {
-            recursiveSort(i + 1, ne++);
-          }
-        } else {
-          // If a pass is finished, decrease the range of sorting
-          maxIterationIndex--;
-          if (maxIterationIndex >= 1) {
-            animationId = requestAnimationFrame(() => recursiveSort(0,1));
-          }
-        }
+    // Main recursive function for insertion sort
+    const recursiveSort = () => {
+      const isSorted = insertionSortStep();
+
+      if (!isSorted) {
+        animationId = requestAnimationFrame(recursiveSort);
       } else {
-        cancelAnimationFrame(animationId);
+        cancelAnimationFrame(animationId); // Stop the animation once sorting is complete
       }
+
+      i++; // Move to the next element
     };
 
     // Start the sorting process
-    recursiveSort(0);
+    recursiveSort();
   };
-
+  
   // Drawing the rectangles on canvas whenever statee changes
   useEffect(() => {
     const canvas = canvasRef.current;
